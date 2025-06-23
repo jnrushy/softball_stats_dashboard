@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CSV Test</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+</head>
+<body>
+    <h1>CSV Processing Test</h1>
+    <div id="output"></div>
+
+    <script>
+        const output = document.getElementById('output');
+        
+        async function testCSVProcessing() {
+            try {
+                output.innerHTML = '<p>Loading CSV files...</p>';
+                
+                // Load the CSV files
+                const [offenseResponse, pitchingResponse, defenseResponse, catchingResponse] = await Promise.all([
+                    fetch('./SDYS 2025 Final Stats - Offense.csv'),
+                    fetch('./SDYS 2025 Final Stats - Pitching.csv'),
+                    fetch('./SDYS 2025 Final Stats - Defense.csv'),
+                    fetch('./SDYS 2025 Final Stats - Catching.csv')
+                ]);
+
+                const [offenseText, pitchingText, defenseText, catchingText] = await Promise.all([
+                    offenseResponse.text(),
+                    pitchingResponse.text(),
+                    defenseResponse.text(),
+                    catchingResponse.text()
+                ]);
+
+                output.innerHTML = '<p>Files loaded. Processing...</p>';
+
+                // Test PapaParse directly
+                const offenseResult = Papa.parse(offenseText, {
+                    header: true,
+                    skipEmptyLines: true,
+                    transformHeader: (header) => header.trim(),
+                });
+
+                const pitchingResult = Papa.parse(pitchingText, {
+                    header: true,
+                    skipEmptyLines: true,
+                    transformHeader: (header) => header.trim(),
+                });
+
+                const defenseResult = Papa.parse(defenseText, {
+                    header: true,
+                    skipEmptyLines: true,
+                    transformHeader: (header) => header.trim(),
+                });
+
+                const catchingResult = Papa.parse(catchingText, {
+                    header: true,
+                    skipEmptyLines: true,
+                    transformHeader: (header) => header.trim(),
+                });
+
+                // Filter data
+                const offenseData = offenseResult.data.filter(row => {
+                    const playerName = row['Player Name'];
+                    return playerName && 
+                           playerName !== 'Totals' && 
+                           playerName.trim() !== '' &&
+                           playerName !== 'Player Name';
+                });
+
+                const pitchingData = pitchingResult.data.filter(row => {
+                    const playerName = row['Player Name'];
+                    return playerName && 
+                           playerName !== 'Totals' && 
+                           playerName.trim() !== '' &&
+                           playerName !== 'Player Name';
+                });
+
+                const defenseData = defenseResult.data.filter(row => {
+                    const playerName = row['Player Name'];
+                    return playerName && 
+                           playerName !== 'Totals' && 
+                           playerName.trim() !== '' &&
+                           playerName !== 'Player Name';
+                });
+
+                const catchingData = catchingResult.data.filter(row => {
+                    const playerName = row['Player Name'];
+                    return playerName && 
+                           playerName !== 'Totals' && 
+                           playerName.trim() !== '' &&
+                           playerName !== 'Player Name';
+                });
+
+                output.innerHTML = `
+                    <h2>Results:</h2>
+                    <p><strong>Offense:</strong> ${offenseData.length} players</p>
+                    <p><strong>Pitching:</strong> ${pitchingData.length} players</p>
+                    <p><strong>Defense:</strong> ${defenseData.length} players</p>
+                    <p><strong>Catching:</strong> ${catchingData.length} players</p>
+                    
+                    <h3>Sample Offense Data:</h3>
+                    <pre>${JSON.stringify(offenseData.slice(0, 2), null, 2)}</pre>
+                    
+                    <h3>Sample Pitching Data:</h3>
+                    <pre>${JSON.stringify(pitchingData.slice(0, 2), null, 2)}</pre>
+                `;
+
+            } catch (error) {
+                output.innerHTML = `<p style="color: red;">Error: ${error.message}</p>`;
+                console.error('Test error:', error);
+            }
+        }
+
+        // Run the test when page loads
+        testCSVProcessing();
+    </script>
+</body>
+</html> 
